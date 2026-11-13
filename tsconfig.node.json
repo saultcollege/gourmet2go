@@ -20,7 +20,13 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    // TESTING RUN BUILD ERRORS
+    "allowJs": true
   },
-  "include": ["vite.config.ts"]
+   "include": [
+  "vite.config.ts",
+  "src/types/vite-plugin-top-level-await.d.ts"
+]
 }
