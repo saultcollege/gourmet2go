@@ -1,6 +1,19 @@
 # Setup Guide
 
-## Overview
+**Contents:**
+- [Overview](#overview)
+- [Needed Installations](#need-to-download)
+- [Quick start](#quick-start-summary)
+- [Build for Testing](#build-for-testing)
+- [Build for Productiong](#build-for-production)
+- [Troubleshooting](#troubleshooting)
+- [Common Commands](#common-commands)
+- [Testing the installation](#testing-the-installation)
+- [Documentation guide](#documentation-guide)
+
+---
+
+## Overview [(to top)](#setup-guide)
 
 This guide provides step-by-step instructions for setting up the Gourmet2Go development environment on your local machine. Follow these instructions to get the application running locally for development or testing purposes.
 
@@ -12,12 +25,11 @@ This guide provides step-by-step instructions for setting up the Gourmet2Go deve
 - **State Management:** Zustand + TanStack Query
 
 ---
-
-## Prerequisites
+## Need to download [(to top)](#setup-guide)
 
 ### Required Software
 
-Before you begin, ensure you have the following installed on your system:
+Downloads for this program:
 
 #### 1. Node.js (v18 or higher)
 
@@ -83,84 +95,48 @@ git --version
 ```
 
 ---
+## Quick Start Summary [(to top)](#setup-guide)
 
-## Installation Steps
+**Ideally, this will get the program running:**
 
-### 1. Clone the Repository
 
+#### 1. Clone
 ```bash
-# Clone the repository
 git clone https://github.com/iraana/Capstone-Project.git
-
-# Navigate to the project directory
-cd Capstone-Project
 ```
 
-### 2. Install Frontend Dependencies
-
+#### 2. Make a branch for YOUR SEMESTER
 ```bash
-# Install Node.js dependencies
+git branch gourmet2go-[year][term]
+ex: gourmet2go-26f
+```
+
+#### 3. Make a branch for your OWN code (each team member should do this)
+```bash
+git branch [name]-code
+```
+(the naming is for simplicity, not a required convention!)
+
+
+#### 4. Install dependencies
+```bash
 npm install
+pip install -r api\requirements.txt
 ```
 
-This will install all required packages listed in `package.json`, including:
-- React, React DOM
-- TypeScript
-- Vite (build tool)
-- Tailwind CSS
-- Supabase client
-- TanStack Query (React Query)
-- Zustand (state management)
-- Recharts (analytics charts)
-- And all other dependencies
-
-**Expected output:** A `node_modules/` folder will be created with all dependencies.
-
-### 3. Install Backend Dependencies
-
+#### 5. Build WASM
 ```bash
-# Install Python dependencies
-pip install -r requirements.txt
-
-# On some systems, you may need to use pip3
-pip3 install -r requirements.txt
-```
-
-This installs the Flask serverless API dependencies required for administrative operations.
-
-**Note:** If you encounter permission errors, you may need to use:
-```bash
-pip install -r requirements.txt --user
-```
-
-### 4. Compile Rust/WASM Image Processor
-
-The application uses a Rust-based image processor compiled to WebAssembly for client-side image optimization.
-
-```bash
-# Navigate to the Rust directory
-
-# Build the WASM package
 wasm-pack build --target web
 ```
 
-**What this does:**
-- Compiles Rust code to WebAssembly
-- Generates JavaScript bindings
-- Creates a `pkg/` directory with the compiled WASM module
-- Optimizes the image processor for web use
+#### 6. Create .env file with your Supabase credentials
+```bash
+cp .env.example .env  # If example exists, otherwise create manually
+```
 
-**Output:** You should see a `pkg/` folder containing:
-- `.wasm` files (compiled WebAssembly)
-- `.js` files (JavaScript bindings)
-- TypeScript definitions
-
-### 5. Environment Configuration
-
-The project uses a `.env` file in the **project root** directory for environment variables. **You need to configure this file with your own Supabase credentials** before running the app.
-
-**Update the `.env` file with the following:**
-```env
+#### 7. Update your .env file
+**Update the file with the following:**
+```bash
 # Supabase Configuration
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -175,22 +151,23 @@ VITE_APP_URL=http://localhost:5173  # For local development
 
 # Production URL (already deployed):
 # VITE_APP_URL=https://gourmet2go.vercel.app
+
+# Stripe Configuration
+STRIPE_PUBLIC_KEY=your_stripe_public_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
 ```
 
-#### Getting Supabase Credentials:
+#### 8. Start development
+npm run dev
 
-1. Go to your Supabase project dashboard: https://supabase.com/dashboard/project/vnnlrooakzcseeiqskxw
-2. Navigate to **Settings** → **API**
-3. Copy the following:
-   - **Project URL** → `VITE_SUPABASE_URL`
-   - **anon/public key** → `VITE_SUPABASE_ANON_KEY`
-   - **service_role key** → `SUPABASE_SERVICE_ROLE_KEY` (keep this secret!)
+#### 8. Open http://localhost:5173/
 
-**Security Note:** Never commit the `.env` file to Git. It's already included in `.gitignore`.
+
+**Done!** You should now have a working development environment! 
 
 ---
 
-## Running the Application
+## Build for Testing [(to top)](#setup-guide)
 
 ### Development Mode
 
@@ -227,7 +204,7 @@ The Flask API is deployed as serverless functions on Vercel, but for local testi
 cd api
 
 # Run Flask in development mode
-python app.py
+python index.py
 
 # Or use Flask CLI
 flask run
@@ -242,7 +219,7 @@ flask run
 
 ---
 
-## Build for Production
+## Build for Production [(to top)](#setup-guide)
 
 ### Build the Frontend
 
@@ -268,105 +245,7 @@ This serves the `dist/` folder to verify the production build works correctly.
 
 ---
 
-## Development Workflow
-
-### Typical Development Session
-
-1. **Pull latest changes:**
-   ```bash
-   git pull origin main
-   ```
-
-2. **Install any new dependencies:**
-   ```bash
-   npm install
-   pip install -r requirements.txt
-   ```
-
-3. **Start development server:**
-   ```bash
-   npm run dev
-   ```
-
-4. **Make your changes** in the `src/` directory
-
-5. **Test your changes:**
-   ```bash
-   npm test
-   ```
-
-6. **Commit and push:**
-   ```bash
-   git add .
-   git commit -m "Description of changes"
-   git push origin your-branch-name
-   ```
-
-### Updating WASM Module
-
-If you make changes to the Rust image processor:
-
-1. **Edit Rust source files** (in `wasm-lib`)
-
-2. **Rebuild WASM:**
-   ```bash
-   wasm-pack build --target web
-   ```
-
-3. **Restart dev server** to use the new WASM module:
-   ```bash
-   npm run dev
-   ```
-
----
-
-## Common Commands
-
-### Development
-
-```bash
-# Start development server
-npm run dev
-
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run coverage
-
-# Run tests in watch mode
-npm run test:watch
-
-# Type check TypeScript
-npx tsc --noEmit
-
-# Lint code
-npm run lint
-```
-
-### Building
-
-```bash
-# Create production build
-npm run build
-
-# Preview production build
-npm run preview
-
-# Build WASM module
-wasm-pack build --target web
-```
-
-### Database (Supabase)
-
-```bash
-# The project uses Supabase BaaS - no local database setup needed
-# Database operations are handled through the Supabase client
-```
-
----
-
-## Troubleshooting
+## Troubleshooting [(to top)](#setup-guide)
 
 ### Common Issues and Solutions
 
@@ -424,7 +303,7 @@ lsof -ti:5173 | xargs kill -9
 npm run dev -- --port 3000
 ```
 
-#### Issue: Environment variables not loading
+### Issue: Environment variables not loading
 
 **Solution:**
 1. Verify `.env` file is in the project root (same level as `package.json`)
@@ -432,7 +311,7 @@ npm run dev -- --port 3000
 3. Ensure variable names start with `VITE_` for frontend variables
 4. Check for typos in variable names
 
-#### Issue: Supabase connection errors
+### Issue: Supabase connection errors
 
 **Solution:**
 1. Verify your Supabase credentials in `.env`
@@ -440,7 +319,7 @@ npm run dev -- --port 3000
 3. Ensure RLS (Row Level Security) policies are properly configured
 4. Verify network connection (Supabase is cloud-hosted)
 
-#### Issue: TypeScript errors after pulling new code
+### Issue: TypeScript errors after pulling new code
 
 **Solution:**
 ```bash
@@ -452,7 +331,7 @@ npm install
 rm -rf node_modules/.cache
 ```
 
-#### Issue: Build fails with "out of memory" error
+### Issue: Build fails with "out of memory" error
 
 **Solution:**
 ```bash
@@ -465,7 +344,7 @@ $env:NODE_OPTIONS="--max-old-space-size=4096"
 npm run build
 ```
 
-#### Issue: Hot reload not working
+### Issue: Hot reload not working
 
 **Solution:**
 1. Check if you're editing files outside `src/`
@@ -479,7 +358,53 @@ npm run build
 
 ---
 
-## Testing the Installation
+## Common Commands [(to top)](#setup-guide)
+
+### Development
+
+```bash
+# Start development server
+npm run dev
+
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run coverage
+
+# Run tests in watch mode
+npm run test:watch
+
+# Type check TypeScript
+npx tsc --noEmit
+
+# Lint code
+npm run lint
+```
+
+### Building
+
+```bash
+# Create production build
+npm run build
+
+# Preview production build
+npm run preview
+
+# Build WASM module
+wasm-pack build --target web
+```
+
+### Database (Supabase)
+
+```bash
+# The project uses Supabase BaaS - no local database setup needed
+# Database operations are handled through the Supabase client
+```
+
+---
+
+## Testing the Installation [(to top)](#setup-guide)
 
 ### Verify Everything Works
 
@@ -515,7 +440,7 @@ After setup, verify your installation by running through this checklist:
 
 ---
 
-## System Requirements
+## System Requirements [(to top)](#setup-guide)
 
 ### Minimum Requirements
 
@@ -537,7 +462,7 @@ After setup, verify your installation by running through this checklist:
 
 ---
 
-## Additional Resources
+## Documentation Guide [(to top)](#setup-guide)
 
 ### Documentation
 
@@ -545,6 +470,7 @@ After setup, verify your installation by running through this checklist:
 - **Testing Guide:** `docs/TESTING.md` - How to run and write tests
 - **Database Schema:** `docs/DATABASE_SCHEMA.md` - Database structure
 - **Contributing:** `docs/CONTRIBUTING.md` - How to contribute code
+
 
 ### External Documentation
 
@@ -566,53 +492,11 @@ If you encounter issues not covered in this guide:
 
 ---
 
-## Quick Start Summary
-
-**For the impatient developer:**
-
-```bash
-# 1. Clone
-git clone https://github.com/iraana/Capstone-Project.git
-cd Capstone-Project
-
-# 2. Install dependencies
-npm install
-pip install -r requirements.txt
-
-# 3. Build WASM
-wasm-pack build --target web
-
-# 4. Create .env file with your Supabase credentials
-cp .env.example .env  # If example exists, otherwise create manually
-
-# 5. Start development
-npm run dev
-
-# 6. Open http://localhost:5173/
-```
-
-**Done!** You should now have a working development environment! 
-
----
-
-## Next Steps
-
-After setting up the development environment:
-
-1. **Read the README** - Understand the project structure and features
-2. **Review TESTING.md** - Learn how to run and write tests
-3. **Check CONTRIBUTING.md** - Understand the development workflow
-4. **Explore the codebase** - Familiarize yourself with the code organization
-5. **Run the test suite** - Ensure everything is working: `npm test`
-6. **Make a small change** - Try modifying something to test your setup
-7. **Create a branch** - Start working on your first task!
-
----
-
-**Last Updated:** April 2026  
-**Maintainer:** Team DevDynamics  
-**Questions?** Contact the team via Microsoft Teams or GitHub Issues
+**Last Updated:** November 2026  
+**Maintainer:** Team C.A.P. Stone  
+**Questions?** Reach out to your team, department head, or capstone teacher
 
 ---
 
 **Welcome to the Gourmet2Go development team!**
+ [(to top)](#setup-guide)
